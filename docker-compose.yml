@@ -1,0 +1,108 @@
+name: fcg
+
+x-api-environment: &api-environment
+  ASPNETCORE_ENVIRONMENT: Production
+  Database__ApplyMigrationsOnStartup: "true"
+  RabbitMq__Host: rabbitmq
+  RabbitMq__VirtualHost: /
+  RabbitMq__Username: ${RABBITMQ_USER:-fcg}
+  RabbitMq__Password: ${RABBITMQ_PASSWORD:-fcg}
+  Jwt__Issuer: fcg-users-api
+  Jwt__Audience: fcg
+  Jwt__Key: ${JWT_KEY:-fcg-dev-only-signing-key-change-me-0123456789}
+
+x-api-dependencies: &api-dependencies
+  postgres:
+    condition: service_healthy
+  rabbitmq:
+    condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fcg-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fcg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fcg}
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fcg} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: fcg-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-fcg}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-fcg}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  users-api:
+    profiles: ["apps"]
+    build: ../fcg-users-api
+    image: ghcr.io/sampaiobrenner/fcg-users-api:latest
+    container_name: fcg-users-api
+    environment:
+      <<: *api-environment
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_users;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
+    ports:
+      - "5101:8080"
+    depends_on: *api-dependencies
+
+  catalog-api:
+    profiles: ["apps"]
+    build: ../fcg-catalog-api
+    image: ghcr.io/sampaiobrenner/fcg-catalog-api:latest
+    container_name: fcg-catalog-api
+    environment:
+      <<: *api-environment
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_catalog;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
+    ports:
+      - "5102:8080"
+    depends_on: *api-dependencies
+
+  payments-api:
+    profiles: ["apps"]
+    build: ../fcg-payments-api
+    image: ghcr.io/sampaiobrenner/fcg-payments-api:latest
+    container_name: fcg-payments-api
+    environment:
+      <<: *api-environment
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_payments;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
+    ports:
+      - "5103:8080"
+    depends_on: *api-dependencies
+
+  notifications-api:
+    profiles: ["apps"]
+    build: ../fcg-notifications-api
+    image: ghcr.io/sampaiobrenner/fcg-notifications-api:latest
+    container_name: fcg-notifications-api
+    environment:
+      <<: *api-environment
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_notifications;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
+    ports:
+      - "5104:8080"
+    depends_on: *api-dependencies
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
