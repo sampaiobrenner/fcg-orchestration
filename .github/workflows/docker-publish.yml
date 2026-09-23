@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       image-name:
-        description: Nome da imagem no GHCR (ex.: fcg-users-api)
+        description: "Nome da imagem no GHCR, por exemplo fcg-users-api"
         required: true
         type: string
       context:
