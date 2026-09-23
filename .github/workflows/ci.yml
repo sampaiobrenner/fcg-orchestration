@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -20,3 +21,26 @@ jobs:
 
       - name: Workflows do GitHub Actions validos
         run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:latest -color
+
+  sonar:
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analise SonarCloud (manifests Kubernetes, compose e workflows)
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          args: >
+            -Dsonar.projectKey=sampaiobrenner_fcg-orchestration
+            -Dsonar.organization=sampaiobrenner
+            -Dsonar.host.url=https://sonarcloud.io
+
+      - name: Sonar nao configurado
+        if: env.SONAR_TOKEN == ''
+        run: echo "SONAR_TOKEN ausente; analise ignorada."
+
