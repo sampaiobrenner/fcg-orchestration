@@ -62,6 +62,7 @@ services:
     container_name: fcg-users-api
     environment:
       <<: *api-environment
+      Jwt__ExpirationMinutes: "60"
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_users;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
     ports:
       - "5101:8080"
@@ -86,6 +87,7 @@ services:
     container_name: fcg-payments-api
     environment:
       <<: *api-environment
+      Payments__ApprovalLimit: "300"
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_payments;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
     ports:
       - "5103:8080"
