@@ -66,3 +66,12 @@ Variaveis opcionais: copie `.env.example` para `.env`.
 ## Kubernetes
 
 Os manifests de cada servico ficam na pasta `k8s/` do respectivo repositorio. Os manifests de infraestrutura (PostgreSQL, RabbitMQ) e o passo a passo de deploy em cluster local (kind/minikube) serao adicionados na historia OR-02.
+
+## Imagens no GHCR
+
+Cada servico publica sua imagem em `ghcr.io/sampaiobrenner/fcg-<servico>` a cada push na `main` (tag `latest` e `sha-<commit>`) e a cada tag `v*` (tag semver). O build usa o workflow reutilizavel [`docker-publish.yml`](.github/workflows/docker-publish.yml) deste repositorio, chamado por `.github/workflows/docker.yml` em cada servico.
+
+```bash
+docker pull ghcr.io/sampaiobrenner/fcg-users-api:latest
+```
+
