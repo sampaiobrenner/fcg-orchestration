@@ -56,7 +56,6 @@ services:
       retries: 10
 
   users-api:
-    profiles: ["apps"]
     build: ../fcg-users-api
     image: ghcr.io/sampaiobrenner/fcg-users-api:latest
     container_name: fcg-users-api
@@ -69,37 +68,38 @@ services:
     depends_on: *api-dependencies
 
   catalog-api:
-    profiles: ["apps"]
     build: ../fcg-catalog-api
     image: ghcr.io/sampaiobrenner/fcg-catalog-api:latest
     container_name: fcg-catalog-api
     environment:
       <<: *api-environment
+      Messaging__Queues__CatalogPaymentProcessed: catalog.payment-processed
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_catalog;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
     ports:
       - "5102:8080"
     depends_on: *api-dependencies
 
   payments-api:
-    profiles: ["apps"]
     build: ../fcg-payments-api
     image: ghcr.io/sampaiobrenner/fcg-payments-api:latest
     container_name: fcg-payments-api
     environment:
       <<: *api-environment
       Payments__ApprovalLimit: "300"
+      Messaging__Queues__PaymentsOrderPlaced: payments.order-placed
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_payments;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
     ports:
       - "5103:8080"
     depends_on: *api-dependencies
 
   notifications-api:
-    profiles: ["apps"]
     build: ../fcg-notifications-api
     image: ghcr.io/sampaiobrenner/fcg-notifications-api:latest
     container_name: fcg-notifications-api
     environment:
       <<: *api-environment
+      Messaging__Queues__NotificationsUserCreated: notifications.user-created
+      Messaging__Queues__NotificationsPaymentProcessed: notifications.payment-processed
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_notifications;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
     ports:
       - "5104:8080"

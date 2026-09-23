@@ -40,16 +40,16 @@ done
 
 ## Executando com Docker
 
+Aplicacao completa (PostgreSQL, RabbitMQ e as 4 APIs, com build a partir dos repositorios irmaos):
+
+```bash
+docker compose up -d --build
+```
+
 Somente infraestrutura (para desenvolver um servico com `dotnet run`):
 
 ```bash
-docker compose up -d
-```
-
-Aplicacao completa (infra + 4 APIs, build a partir dos repositorios irmaos):
-
-```bash
-docker compose --profile apps up -d --build
+docker compose up -d postgres rabbitmq
 ```
 
 | Servico | URL |
@@ -61,11 +61,55 @@ docker compose --profile apps up -d --build
 | RabbitMQ Management | http://localhost:15672 (fcg / fcg) |
 | PostgreSQL | localhost:5432 (fcg / fcg) |
 
-Variaveis opcionais: copie `.env.example` para `.env`.
+Health de cada API: `/health/live` e `/health/ready`. Variaveis opcionais: copie `.env.example` para `.env`. Para parar: `docker compose down` (use `-v` para apagar os dados).
 
 ## Kubernetes
 
-Os manifests de cada servico ficam na pasta `k8s/` do respectivo repositorio. Os manifests de infraestrutura (PostgreSQL, RabbitMQ) e o passo a passo de deploy em cluster local (kind/minikube) serao adicionados na historia OR-02.
+A pasta [`k8s/`](k8s) reune **todos** os manifests da aplicacao, para o deploy com um unico `kubectl apply -f .`:
+
+| Arquivos | Conteudo |
+|---|---|
+| `postgres-*.yaml` | Secret (usuario/senha), ConfigMap (`init.sql` com os 4 databases), PVC, Deployment e Service `postgres:5432` |
+| `rabbitmq-*.yaml` | Secret (usuario/senha), PVC, Deployment e Service `rabbitmq:5672` / `15672` |
+| `<servico>-{deployment,service,configmap,secret}.yaml` | Copia dos manifests de cada microsservico |
+
+A fonte dos manifests de cada microsservico e a pasta `k8s/` do proprio repositorio. Depois de alterar um deles, atualize a copia:
+
+```bash
+./scripts/sync-k8s.sh          # copia ../fcg-*-api/k8s/*.yaml para k8s/
+./scripts/sync-k8s.sh --check  # so verifica se as copias estao atualizadas
+```
+
+Somente Deployments (nenhum Pod isolado), ConfigMaps para configuracao nao sensivel e Secrets para dados sensiveis. Os servicos se comunicam pelos nomes de Service (`postgres`, `rabbitmq`, `users-api`, ...).
+
+### Deploy em cluster local
+
+Funciona em kind, minikube, k3d ou Kubernetes do Docker Desktop.
+
+1. Crie o cluster (exemplo com kind): `kind create cluster --name fcg`
+2. Disponibilize as imagens. Elas sao publicadas no GHCR a cada push na `main` dos servicos, entao o cluster faz o pull sozinho. Para testar codigo local:
+   ```bash
+   docker compose build
+   kind load docker-image ghcr.io/sampaiobrenner/fcg-users-api:latest ghcr.io/sampaiobrenner/fcg-catalog-api:latest \
+     ghcr.io/sampaiobrenner/fcg-payments-api:latest ghcr.io/sampaiobrenner/fcg-notifications-api:latest
+   ```
+   (minikube: `minikube image load <imagem>`; Docker Desktop usa as imagens locais direto.)
+3. Aplique tudo e acompanhe:
+   ```bash
+   cd k8s
+   kubectl apply -f .
+   kubectl get pods -w
+   ```
+   As APIs podem reiniciar uma vez enquanto PostgreSQL e RabbitMQ ficam prontos; em cerca de 2 minutos todos os Pods ficam `Running` e `1/1`.
+4. Acesse pelos Services:
+   ```bash
+   kubectl port-forward svc/users-api 5101:80
+   kubectl port-forward svc/catalog-api 5102:80
+   kubectl port-forward svc/payments-api 5103:80
+   kubectl port-forward svc/notifications-api 5104:80
+   kubectl port-forward svc/rabbitmq 15672:15672
+   ```
+5. Para remover: `kubectl delete -f .` (e `kind delete cluster --name fcg`).
 
 ## Imagens no GHCR
 

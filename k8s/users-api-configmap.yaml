@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: users-api-config
+  labels:
+    app: users-api
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  Database__ApplyMigrationsOnStartup: "true"
+  RabbitMq__Host: "rabbitmq"
+  RabbitMq__VirtualHost: "/"
+  Jwt__Issuer: "fcg-users-api"
+  Jwt__Audience: "fcg"
