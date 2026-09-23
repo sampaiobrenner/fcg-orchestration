@@ -16,6 +16,7 @@ spec:
       labels:
         app: postgres
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: postgres
           image: postgres:16-alpine
@@ -43,9 +44,11 @@ spec:
             requests:
               cpu: 100m
               memory: 256Mi
+              ephemeral-storage: 64Mi
             limits:
               cpu: 500m
               memory: 512Mi
+              ephemeral-storage: 256Mi
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data

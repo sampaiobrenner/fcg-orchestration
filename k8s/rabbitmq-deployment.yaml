@@ -16,6 +16,7 @@ spec:
       labels:
         app: rabbitmq
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: rabbitmq
           image: rabbitmq:4-management-alpine
@@ -47,9 +48,11 @@ spec:
             requests:
               cpu: 100m
               memory: 256Mi
+              ephemeral-storage: 64Mi
             limits:
               cpu: 1000m
               memory: 512Mi
+              ephemeral-storage: 256Mi
           volumeMounts:
             - name: data
               mountPath: /var/lib/rabbitmq
