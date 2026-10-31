@@ -136,6 +136,8 @@ Para a demonstracao manual, use [`e2e/fcg.http`](e2e/fcg.http). O roteiro do vid
 npx newman run postman/fcg.postman_collection.json -e postman/fcg-local.postman_environment.json
 ```
 
+O workflow [`api-tests.yml`](.github/workflows/api-tests.yml) roda essa colecao e o `e2e/e2e.sh` automaticamente todo dia as 06:00 (Brasilia), a cada mudanca em `postman/`, `e2e/` ou no compose, e sob demanda em **Actions > Testes de API > Run workflow**. Ele sobe a aplicacao com as imagens `latest` do GHCR, mostra o resumo na pagina da execucao e publica os resultados (JUnit, JSON e logs dos containers em caso de falha) como artefato.
+
 ## Imagens no GHCR
 
 Cada servico publica sua imagem em `ghcr.io/sampaiobrenner/fcg-<servico>` a cada push na `main` (tag `latest` e `sha-<commit>`) e a cada tag `v*` (tag semver). O build usa o workflow reutilizavel [`docker-publish.yml`](.github/workflows/docker-publish.yml) deste repositorio, chamado por `.github/workflows/docker.yml` em cada servico.

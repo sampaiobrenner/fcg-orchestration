@@ -27,3 +27,13 @@ npx newman run postman/fcg.postman_collection.json -e postman/fcg-local.postman_
 ```
 
 Cada execucao cria usuarios e jogos com sufixo unico, entao pode ser repetida sem limpar o banco.
+
+## Execucao automatica
+
+O workflow [`api-tests.yml`](../.github/workflows/api-tests.yml) sobe a aplicacao no GitHub Actions com as imagens `latest` do GHCR e roda esta colecao e o `e2e/e2e.sh`:
+
+- todo dia as 06:00 (Brasilia), para pegar regressoes das imagens publicadas pelos servicos;
+- a cada push ou PR que mude `postman/`, `e2e/` ou o `docker-compose.yml`;
+- sob demanda em **Actions > Testes de API > Run workflow**.
+
+O resumo (requisicoes, assercoes e falhas) aparece na pagina da execucao; o artefato `resultados-testes-api` traz o relatorio JUnit, o JSON do newman e, em caso de falha, os logs dos containers.

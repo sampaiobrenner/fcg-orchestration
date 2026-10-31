@@ -1,0 +1,91 @@
+name: Testes de API
+
+# Sobe a aplicacao completa com as imagens publicadas no GHCR e roda a colecao Postman (newman)
+# e o teste ponta a ponta (e2e/e2e.sh), que confere os e-mails nos logs da NotificationsAPI.
+on:
+  schedule:
+    - cron: "0 9 * * *" # todo dia as 06:00 de Brasilia
+  push:
+    branches: [main]
+    paths: ["postman/**", "e2e/**", "docker-compose.yml", "postgres/**", ".github/workflows/api-tests.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["postman/**", "e2e/**", "docker-compose.yml", "postgres/**", ".github/workflows/api-tests.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: api-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Subir a aplicacao (imagens latest do GHCR)
+        run: |
+          docker compose pull --quiet
+          docker compose up -d --no-build --wait
+
+      - name: Aguardar os servicos ficarem prontos
+        run: |
+          for port in 5101 5102 5103 5104; do
+            for _ in $(seq 1 60); do
+              curl -sf "http://localhost:$port/health/ready" >/dev/null && break
+              sleep 2
+            done
+            curl -sf "http://localhost:$port/health/ready" >/dev/null || { echo "::error::servico na porta $port nao ficou pronto"; exit 1; }
+            echo "porta $port pronta"
+          done
+
+      - name: Colecao Postman (newman)
+        run: |
+          mkdir -p results
+          npm install --global --ignore-scripts newman@6.2.3
+          newman run postman/fcg.postman_collection.json \
+            -e postman/fcg-local.postman_environment.json \
+            --reporters cli,junit,json \
+            --reporter-junit-export results/newman.xml \
+            --reporter-json-export results/newman.json
+
+      - name: Teste ponta a ponta (e2e.sh)
+        if: ${{ !cancelled() }}
+        run: ./e2e/e2e.sh
+
+      - name: Resumo
+        if: ${{ !cancelled() && hashFiles('results/newman.json') != '' }}
+        run: |
+          jq -r '
+            "## Colecao Postman",
+            "",
+            "| | Executadas | Falhas |",
+            "|---|---|---|",
+            "| Requisicoes | \(.run.stats.requests.total) | \(.run.stats.requests.failed) |",
+            "| Assercoes | \(.run.stats.assertions.total) | \(.run.stats.assertions.failed) |",
+            (if (.run.failures | length) > 0 then
+              "", "### Falhas", "",
+              (.run.failures[] | "- **\(.source.name // "?")**: \(.error.test // "") \(.error.message)")
+            else empty end)
+          ' results/newman.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Logs dos containers
+        if: ${{ failure() }}
+        run: docker compose logs --no-color > results/docker-compose.log
+
+      - name: Publicar resultados
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-testes-api
+          path: results/
+          if-no-files-found: ignore
+
+      - name: Derrubar a aplicacao
+        if: ${{ always() }}
+        run: docker compose down -v
