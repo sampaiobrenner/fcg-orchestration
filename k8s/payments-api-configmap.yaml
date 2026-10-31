@@ -11,3 +11,5 @@ data:
   RabbitMq__VirtualHost: "/"
   Jwt__Issuer: "fcg-users-api"
   Jwt__Audience: "fcg"
+  Payments__ApprovalLimit: "300"
+  Messaging__Queues__PaymentsOrderPlaced: "payments.order-placed"

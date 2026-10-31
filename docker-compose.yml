@@ -62,6 +62,7 @@ services:
     environment:
       <<: *api-environment
       Jwt__ExpirationMinutes: "60"
+      Seed__Administrator__Password: ${ADMIN_PASSWORD:-Admin@123}
       ConnectionStrings__Default: Host=postgres;Port=5432;Database=fcg_users;Username=${POSTGRES_USER:-fcg};Password=${POSTGRES_PASSWORD:-fcg}
     ports:
       - "5101:8080"
