@@ -1361,7 +1361,8 @@
                   "const body = pm.response.json();",
                   "pm.test('Location aponta para o jogo', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));",
                   "pm.test('ativo e com preco', () => { pm.expect(body.active).to.eql(true); pm.expect(body.price).to.eql(120); });",
-                  "pm.collectionVariables.set('gameId', body.id);"
+                  "pm.collectionVariables.set('gameId', body.id);",
+                  "pm.collectionVariables.set('gamePrice', body.price);"
                 ]
               }
             }
@@ -1544,7 +1545,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
-                  "pm.test('preco atualizado', () => pm.expect(pm.response.json().price).to.eql(100));"
+                  "pm.test('preco atualizado', () => pm.expect(pm.response.json().price).to.eql(100));",
+                  "pm.collectionVariables.set('gamePrice', pm.response.json().price);"
                 ]
               }
             }
@@ -1722,7 +1724,7 @@
                   "const game = pm.response.json().find(g => g.id === pm.collectionVariables.get('gameId'));",
                   "pm.test('jogo encontrado', () => pm.expect(game).to.exist);",
                   "pm.test('desconto de 50%', () => pm.expect(game.discountPercent).to.eql(50));",
-                  "pm.test('preco efetivo 50,00', () => pm.expect(game.effectivePrice).to.eql(50));"
+                  "pm.test('preco efetivo com 50% de desconto', () => pm.expect(game.effectivePrice).to.eql(Number(pm.collectionVariables.get('gamePrice')) / 2));"
                 ]
               }
             }
@@ -2053,7 +2055,7 @@
                   "",
                   "const body = pm.response.json();",
                   "pm.test('Pending', () => pm.expect(body.status).to.eql('Pending'));",
-                  "pm.test('preco com desconto', () => pm.expect(body.price).to.eql(50));",
+                  "pm.test('preco com desconto', () => pm.expect(body.price).to.eql(Number(pm.collectionVariables.get('gamePrice')) / 2));",
                   "pm.test('Location aponta para o pedido', () => pm.expect(pm.response.headers.get('Location')).to.include(body.orderId));",
                   "pm.collectionVariables.set('orderId', body.orderId);"
                 ]
@@ -2275,7 +2277,7 @@
                   "",
                   "const item = pm.response.json().find(i => i.gameId === pm.collectionVariables.get('gameId'));",
                   "pm.test('jogo na biblioteca', () => pm.expect(item).to.exist);",
-                  "pm.test('preco pago com desconto', () => pm.expect(item.pricePaid).to.eql(50));"
+                  "pm.test('preco pago com desconto', () => pm.expect(item.pricePaid).to.eql(Number(pm.collectionVariables.get('gamePrice')) / 2));"
                 ]
               }
             }
@@ -2377,7 +2379,7 @@
                   "",
                   "const body = pm.response.json();",
                   "pm.test('Approved', () => pm.expect(body.status).to.eql('Approved'));",
-                  "pm.test('valor do pedido', () => pm.expect(body.amount).to.eql(50));",
+                  "pm.test('valor do pedido', () => pm.expect(body.amount).to.eql(Number(pm.collectionVariables.get('gamePrice')) / 2));",
                   "pm.test('mesmo pedido', () => pm.expect(body.orderId).to.eql(pm.collectionVariables.get('orderId')));"
                 ]
               }
