@@ -1,0 +1,2963 @@
+{
+  "info": {
+    "_postman_id": "b9d465f7-48be-5fe4-b89c-4edf3405fd99",
+    "name": "FCG Fase 2 - Testes de API",
+    "description": "Testa todos os endpoints dos 4 microsservicos da FIAP Cloud Games (Users, Catalog, Payments e Notifications), incluindo os fluxos de compra aprovada e rejeitada entre servicos. Rode a colecao inteira na ordem (Runner do Postman ou newman): cada pasta usa variaveis salvas pelas anteriores (tokens, ids). A NotificationsAPI so expoe health; os e-mails dela sao validados pelos logs no e2e/e2e.sh.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 Health",
+      "item": [
+        {
+          "name": "users live",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/health/live",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "users ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/health/ready",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "catalog live",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/health/live",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "catalog ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/health/ready",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "payments live",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/health/live",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "payments ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/health/ready",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "notifications live",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{notificationsUrl}}/health/live",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "notifications ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{notificationsUrl}}/health/ready",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Healthy', () => pm.expect(pm.response.text()).to.include('Healthy'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 UsersAPI",
+      "item": [
+        {
+          "name": "Cadastro - sucesso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Postman\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const run = Date.now();",
+                  "pm.collectionVariables.set('run', run);",
+                  "pm.collectionVariables.set('userEmail', `postman.${run}@fcg.dev`);",
+                  "pm.collectionVariables.set('otherEmail', `postman.outro.${run}@fcg.dev`);",
+                  "pm.collectionVariables.set('tempEmail', `postman.temp.${run}@fcg.dev`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Location aponta para o usuario', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));",
+                  "pm.test('papel User e ativo', () => { pm.expect(body.role).to.eql('User'); pm.expect(body.active).to.eql(true); });",
+                  "pm.test('e-mail normalizado', () => pm.expect(body.email).to.eql(pm.collectionVariables.get('userEmail')));",
+                  "pm.collectionVariables.set('userId', body.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastro - e-mail duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Outro\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastro - senha fraca (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fraco\",\n  \"email\": \"fraco.{{run}}@fcg.dev\",\n  \"password\": \"abc\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 400));pm.test('erro no campo Password', () => pm.expect(JSON.stringify(pm.response.json().errors)).to.match(/[Pp]assword/));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastro - e-mail invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalido\",\n  \"email\": \"nao-e-email\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastro - segundo usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Outro Usuario\",\n  \"email\": \"{{otherEmail}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastro - usuario temporario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/register",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Temporario\",\n  \"email\": \"{{tempEmail}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('tempUserId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('token JWT', () => pm.expect(body.accessToken.split('.')).to.have.lengthOf(3));",
+                  "pm.test('claims do contrato', () => {",
+                  "  const claims = JSON.parse(atob(body.accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "  pm.expect(claims.sub).to.eql(pm.collectionVariables.get('userId'));",
+                  "  pm.expect(claims.email).to.eql(pm.collectionVariables.get('userEmail'));",
+                  "  pm.expect(claims.role).to.eql('User');",
+                  "  pm.expect(claims.iss).to.eql('fcg-users-api');",
+                  "  pm.expect(claims.aud).to.eql('fcg');",
+                  "  pm.expect(claims).to.have.property('jti');",
+                  "});",
+                  "pm.collectionVariables.set('userToken', body.accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - segundo usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{otherEmail}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('otherToken', pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('papel Administrator', () => pm.expect(pm.response.json().role).to.eql('Administrator'));",
+                  "pm.collectionVariables.set('adminToken', pm.response.json().accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - senha errada (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"Errada@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - e-mail inexistente (401 generico)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ninguem.{{run}}@fcg.dev\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Meu perfil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users/me",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('e o proprio usuario', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('userId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Meu perfil - sem token (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users/me",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar usuarios - usuario comum (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar usuarios - administrador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contem o usuario cadastrado', () => pm.expect(pm.response.json().map(u => u.id)).to.include(pm.collectionVariables.get('userId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar usuario por id - administrador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users/{{userId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('mesmo id', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('userId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar usuario inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users/00000000-0000-7000-8000-000000000000",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar nome - administrador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/users/{{userId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Usuario Postman Renomeado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('nome atualizado', () => pm.expect(pm.response.json().name).to.eql('Usuario Postman Renomeado'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar nome - vazio (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/users/{{userId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Alterar papel para Administrator",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/users/{{tempUserId}}/role",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Administrator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('papel alterado', () => pm.expect(pm.response.json().role).to.eql('Administrator'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Alterar papel de volta para User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/users/{{tempUserId}}/role",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"User\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('papel User', () => pm.expect(pm.response.json().role).to.eql('User'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Alterar papel - usuario comum (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/users/{{tempUserId}}/role",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Administrator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desativar usuario temporario",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users/{{tempUserId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login do usuario desativado (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{usersUrl}}/api/v1/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{tempEmail}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desativar usuario inexistente (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{usersUrl}}/api/v1/users/00000000-0000-7000-8000-000000000000",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 CatalogAPI - Jogos e GraphQL",
+      "item": [
+        {
+          "name": "Listar catalogo (publico)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games?pageSize=50",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const games = pm.response.json();",
+                  "pm.test('catalogo com o seed do monolito', () => pm.expect(games.length).to.be.at.least(4));",
+                  "pm.test('preco efetivo presente', () => games.forEach(g => pm.expect(g).to.have.property('effectivePrice')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtrar por genero",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games?genre=RPG",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('so RPG', () => pm.response.json().forEach(g => pm.expect(g.genre).to.eql('RPG')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filtrar por faixa de preco",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games?minPrice=30&maxPrice=60",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('dentro da faixa', () => pm.response.json().forEach(g => pm.expect(g.price).to.be.within(30, 60)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar jogo - sem token (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sem Token\",\n  \"description\": null,\n  \"genre\": \"Acao\",\n  \"price\": 10,\n  \"releaseDate\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar jogo - usuario comum (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Nao Pode\",\n  \"description\": null,\n  \"genre\": \"Acao\",\n  \"price\": 10,\n  \"releaseDate\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar jogo - administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Jogo Postman {{run}}\",\n  \"description\": \"Criado pela colecao de testes\",\n  \"genre\": \"Aventura\",\n  \"price\": 120.0,\n  \"releaseDate\": \"2026-10-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Location aponta para o jogo', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));",
+                  "pm.test('ativo e com preco', () => { pm.expect(body.active).to.eql(true); pm.expect(body.price).to.eql(120); });",
+                  "pm.collectionVariables.set('gameId', body.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar jogo - titulo duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Jogo Postman {{run}}\",\n  \"description\": null,\n  \"genre\": \"Aventura\",\n  \"price\": 120.0,\n  \"releaseDate\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cadastrar jogo - preco negativo (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Invalido {{run}}\",\n  \"description\": null,\n  \"genre\": \"Aventura\",\n  \"price\": -1,\n  \"releaseDate\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar jogo por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games/{{gameId}}",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('titulo', () => pm.expect(pm.response.json().title).to.eql(`Jogo Postman ${pm.collectionVariables.get('run')}`));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar jogo inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games/00000000-0000-7000-8000-000000000000",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar jogo - administrador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games/{{gameId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Jogo Postman {{run}}\",\n  \"description\": \"Preco atualizado\",\n  \"genre\": \"Aventura\",\n  \"price\": 100.0,\n  \"releaseDate\": \"2026-10-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('preco atualizado', () => pm.expect(pm.response.json().price).to.eql(100));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar jogo inexistente (404)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games/00000000-0000-7000-8000-000000000000",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"X\",\n  \"description\": null,\n  \"genre\": \"Y\",\n  \"price\": 1,\n  \"releaseDate\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GraphQL - jogos filtrados e ordenados",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/graphql",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"query\": \"{ games(where: { genre: { eq: \\\"RPG\\\" } }, order: { price: DESC }) { id title genre price } }\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('sem erros', () => pm.expect(body.errors).to.be.undefined);",
+                  "pm.test('so RPG', () => body.data.games.forEach(g => pm.expect(g.genre).to.eql('RPG')));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 CatalogAPI - Promocoes",
+      "item": [
+        {
+          "name": "Criar promocao de 50% - administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/promotions",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Promo Postman {{run}}\",\n  \"discountPercent\": 50,\n  \"startsAt\": \"{{promoStart}}\",\n  \"endsAt\": \"{{promoEnd}}\",\n  \"gameIds\": [\n    \"{{gameId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date();",
+                  "pm.collectionVariables.set('promoStart', new Date(now.getTime() - 3600 * 1000).toISOString());",
+                  "pm.collectionVariables.set('promoEnd', new Date(now.getTime() + 7 * 24 * 3600 * 1000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('contem o jogo', () => pm.expect(body.gameIds).to.include(pm.collectionVariables.get('gameId')));",
+                  "pm.collectionVariables.set('promotionId', body.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preco efetivo com promocao no catalogo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games?title=Jogo%20Postman%20{{run}}",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const game = pm.response.json().find(g => g.id === pm.collectionVariables.get('gameId'));",
+                  "pm.test('jogo encontrado', () => pm.expect(game).to.exist);",
+                  "pm.test('desconto de 50%', () => pm.expect(game.discountPercent).to.eql(50));",
+                  "pm.test('preco efetivo 50,00', () => pm.expect(game.effectivePrice).to.eql(50));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar promocoes - administrador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/promotions",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contem a promocao', () => pm.expect(pm.response.json().map(p => p.id)).to.include(pm.collectionVariables.get('promotionId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar promocoes - usuario comum (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/promotions",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar promocao - desconto invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/promotions",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalida\",\n  \"discountPercent\": 0,\n  \"startsAt\": \"{{promoStart}}\",\n  \"endsAt\": \"{{promoEnd}}\",\n  \"gameIds\": [\n    \"{{gameId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar promocao - datas invertidas (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/promotions",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Invalida\",\n  \"discountPercent\": 10,\n  \"startsAt\": \"{{promoEnd}}\",\n  \"endsAt\": \"{{promoStart}}\",\n  \"gameIds\": [\n    \"{{gameId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar promocao - jogo inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/promotions",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sem Jogo\",\n  \"discountPercent\": 10,\n  \"startsAt\": \"{{promoStart}}\",\n  \"endsAt\": \"{{promoEnd}}\",\n  \"gameIds\": [\n    \"00000000-0000-7000-8000-000000000000\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 Compra aprovada (Catalog + Payments)",
+      "item": [
+        {
+          "name": "Pedido - sem token (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/orders",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"{{gameId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pedido - jogo inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/orders",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"00000000-0000-7000-8000-000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pedido - jogo com promocao (202)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/orders",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"{{gameId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 202', () => pm.response.to.have.status(202));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Pending', () => pm.expect(body.status).to.eql('Pending'));",
+                  "pm.test('preco com desconto', () => pm.expect(body.price).to.eql(50));",
+                  "pm.test('Location aponta para o pedido', () => pm.expect(pm.response.headers.get('Location')).to.include(body.orderId));",
+                  "pm.collectionVariables.set('orderId', body.orderId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pedido repetido (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/orders",
+            "description": "409 porque ja existe pedido pendente ou o jogo ja esta na biblioteca.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"{{gameId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aguardar pedido Completed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (Number(pm.collectionVariables.get('pollTries') || 0) > 0) { setTimeout(() => {}, 1000); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const tries = Number(pm.collectionVariables.get('pollTries') || 0);",
+                  "if (body.status === 'Pending' && tries < 30) {",
+                  "  pm.collectionVariables.set('pollTries', tries + 1);",
+                  "  postman.setNextRequest(pm.info.requestName);",
+                  "  return;",
+                  "}",
+                  "pm.collectionVariables.set('pollTries', 0);",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('pedido Completed', () => pm.expect(body.status).to.eql('Completed'));",
+                  "pm.test('sem motivo', () => pm.expect(body.reason).to.be.null);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pedido - outro usuario (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{otherToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pedido - administrador ve qualquer pedido",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/orders/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Meus pedidos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/orders",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('contem o pedido', () => pm.expect(pm.response.json().map(o => o.orderId)).to.include(pm.collectionVariables.get('orderId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Biblioteca com o jogo comprado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/library",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const item = pm.response.json().find(i => i.gameId === pm.collectionVariables.get('gameId'));",
+                  "pm.test('jogo na biblioteca', () => pm.expect(item).to.exist);",
+                  "pm.test('preco pago com desconto', () => pm.expect(item.pricePaid).to.eql(50));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Biblioteca - sem token (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/library",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Comprar jogo que ja esta na biblioteca (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/orders",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"{{gameId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pagamento Approved",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/api/v1/payments/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Approved', () => pm.expect(body.status).to.eql('Approved'));",
+                  "pm.test('valor do pedido', () => pm.expect(body.amount).to.eql(50));",
+                  "pm.test('mesmo pedido', () => pm.expect(body.orderId).to.eql(pm.collectionVariables.get('orderId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pagamento - outro usuario (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/api/v1/payments/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{otherToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pagamento - administrador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/api/v1/payments/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pagamento inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/api/v1/payments/00000000-0000-7000-8000-000000000000",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pagamento - sem token (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/api/v1/payments/{{orderId}}",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 Compra rejeitada (acima de R$ 300)",
+      "item": [
+        {
+          "name": "Cadastrar jogo de R$ 399,90",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/games",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Jogo Premium Postman {{run}}\",\n  \"description\": \"Acima do limite de aprovacao\",\n  \"genre\": \"Acao\",\n  \"price\": 399.9,\n  \"releaseDate\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('expensiveGameId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pedido do jogo caro (202)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{catalogUrl}}/api/v1/orders",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gameId\": \"{{expensiveGameId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 202', () => pm.response.to.have.status(202));",
+                  "pm.collectionVariables.set('rejectedOrderId', pm.response.json().orderId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aguardar pedido Rejected",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/orders/{{rejectedOrderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (Number(pm.collectionVariables.get('pollTries') || 0) > 0) { setTimeout(() => {}, 1000); }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const tries = Number(pm.collectionVariables.get('pollTries') || 0);",
+                  "if (body.status === 'Pending' && tries < 30) {",
+                  "  pm.collectionVariables.set('pollTries', tries + 1);",
+                  "  postman.setNextRequest(pm.info.requestName);",
+                  "  return;",
+                  "}",
+                  "pm.collectionVariables.set('pollTries', 0);",
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('pedido Rejected', () => pm.expect(body.status).to.eql('Rejected'));",
+                  "pm.test('motivo preenchido', () => pm.expect(body.reason).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pagamento Rejected",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{paymentsUrl}}/api/v1/payments/{{rejectedOrderId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test('Rejected', () => pm.expect(body.status).to.eql('Rejected'));",
+                  "pm.test('motivo cita o limite', () => pm.expect(body.reason).to.include('300'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Jogo rejeitado fora da biblioteca",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/library",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('nao esta na biblioteca', () => pm.expect(pm.response.json().map(i => i.gameId)).to.not.include(pm.collectionVariables.get('expensiveGameId')));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 Limpeza (desativacao)",
+      "item": [
+        {
+          "name": "Desativar promocao",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/promotions/{{promotionId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desativar promocao inexistente (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/promotions/00000000-0000-7000-8000-000000000000",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desativar jogo caro",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games/{{expensiveGameId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Jogo desativado some do catalogo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games?title=Premium%20Postman%20{{run}}",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('fora do catalogo', () => pm.expect(pm.response.json().map(g => g.id)).to.not.include(pm.collectionVariables.get('expensiveGameId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desativar jogo - usuario comum (403)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games/{{gameId}}",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desativar jogo inexistente (404)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{catalogUrl}}/api/v1/games/00000000-0000-7000-8000-000000000000",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('ProblemDetails', () => pm.expect(pm.response.json()).to.have.property('status', 404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "run",
+      "value": ""
+    },
+    {
+      "key": "userEmail",
+      "value": ""
+    },
+    {
+      "key": "otherEmail",
+      "value": ""
+    },
+    {
+      "key": "tempEmail",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "tempUserId",
+      "value": ""
+    },
+    {
+      "key": "userToken",
+      "value": ""
+    },
+    {
+      "key": "otherToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "gameId",
+      "value": ""
+    },
+    {
+      "key": "promotionId",
+      "value": ""
+    },
+    {
+      "key": "promoStart",
+      "value": ""
+    },
+    {
+      "key": "promoEnd",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "expensiveGameId",
+      "value": ""
+    },
+    {
+      "key": "rejectedOrderId",
+      "value": ""
+    },
+    {
+      "key": "pollTries",
+      "value": "0"
+    }
+  ]
+}
