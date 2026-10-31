@@ -101,13 +101,14 @@ Funciona em kind, minikube, k3d ou Kubernetes do Docker Desktop.
    kubectl get pods -w
    ```
    As APIs podem reiniciar uma vez enquanto PostgreSQL e RabbitMQ ficam prontos; em cerca de 2 minutos todos os Pods ficam `Running` e `1/1`.
-4. Acesse pelos Services:
+4. Acesse pelos Services (ClusterIP, so existem dentro do cluster). O script abre as 4 APIs e o RabbitMQ Management nas mesmas portas do docker compose, entao a colecao Postman e o `e2e/e2e.sh` funcionam sem mudar nada (Ctrl+C encerra todos):
    ```bash
-   kubectl port-forward svc/users-api 5101:80
-   kubectl port-forward svc/catalog-api 5102:80
-   kubectl port-forward svc/payments-api 5103:80
-   kubectl port-forward svc/notifications-api 5104:80
-   kubectl port-forward svc/rabbitmq 15672:15672
+   ./scripts/port-forward.sh                 # namespace atual do kubectl
+   NAMESPACE=fcg ./scripts/port-forward.sh   # outro namespace
+   ```
+   Equivale a `kubectl port-forward svc/<servico> <porta>:80` para `users-api` (5101), `catalog-api` (5102), `payments-api` (5103), `notifications-api` (5104) e `svc/rabbitmq 15672:15672`. Com ele aberto, em outro terminal:
+   ```bash
+   LOGS_CMD="kubectl logs -l app=notifications-api --tail=-1" ./e2e/e2e.sh
    ```
 5. Para remover: `kubectl delete -f .` (e `kind delete cluster --name fcg`).
 

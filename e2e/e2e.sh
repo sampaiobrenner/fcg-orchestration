@@ -2,7 +2,7 @@
 # Teste ponta a ponta da FCG Fase 2: cadastro, compra aprovada e compra rejeitada.
 #
 # Docker (padrao):   ./e2e/e2e.sh
-# Kubernetes local:  kubectl port-forward svc/users-api 5101:80 (idem 5102 catalog e 5103 payments) e
+# Kubernetes local:  ./scripts/port-forward.sh (em outro terminal) e
 #                    LOGS_CMD="kubectl logs -l app=notifications-api --tail=-1" ./e2e/e2e.sh
 set -euo pipefail
 
