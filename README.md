@@ -128,6 +128,14 @@ LOGS_CMD="kubectl logs -l app=notifications-api --tail=-1" ./e2e/e2e.sh
 
 Para a demonstracao manual, use [`e2e/fcg.http`](e2e/fcg.http). O roteiro do video esta em [`docs/roteiro-video.md`](docs/roteiro-video.md) e o modelo do relatorio em [`docs/relatorio-entrega.md`](docs/relatorio-entrega.md).
 
+## Colecao Postman
+
+[`postman/`](postman) tem uma colecao que testa todos os endpoints dos 4 servicos (80 requisicoes, 157 asserções), incluindo compra aprovada e rejeitada:
+
+```bash
+npx newman run postman/fcg.postman_collection.json -e postman/fcg-local.postman_environment.json
+```
+
 ## Imagens no GHCR
 
 Cada servico publica sua imagem em `ghcr.io/sampaiobrenner/fcg-<servico>` a cada push na `main` (tag `latest` e `sha-<commit>`) e a cada tag `v*` (tag semver). O build usa o workflow reutilizavel [`docker-publish.yml`](.github/workflows/docker-publish.yml) deste repositorio, chamado por `.github/workflows/docker.yml` em cada servico.
