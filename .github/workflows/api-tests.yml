@@ -47,7 +47,8 @@ jobs:
       - name: Colecao Postman (newman)
         run: |
           mkdir -p results
-          npx --yes newman@6 run postman/fcg.postman_collection.json \
+          npm install --global --ignore-scripts newman@6.2.3
+          newman run postman/fcg.postman_collection.json \
             -e postman/fcg-local.postman_environment.json \
             --reporters cli,junit,json \
             --reporter-junit-export results/newman.xml \
