@@ -11,3 +11,4 @@ data:
   RabbitMq__VirtualHost: "/"
   Jwt__Issuer: "fcg-users-api"
   Jwt__Audience: "fcg"
+  Jwt__ExpirationMinutes: "60"

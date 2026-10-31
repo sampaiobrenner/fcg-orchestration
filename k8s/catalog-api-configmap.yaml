@@ -11,3 +11,5 @@ data:
   RabbitMq__VirtualHost: "/"
   Jwt__Issuer: "fcg-users-api"
   Jwt__Audience: "fcg"
+  # Fila consumida (PaymentProcessedEvent). Default no codigo: QueueNames.CatalogPaymentProcessed.
+  Messaging__Queues__CatalogPaymentProcessed: "catalog.payment-processed"
