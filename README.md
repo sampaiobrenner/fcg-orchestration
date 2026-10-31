@@ -111,6 +111,23 @@ Funciona em kind, minikube, k3d ou Kubernetes do Docker Desktop.
    ```
 5. Para remover: `kubectl delete -f .` (e `kind delete cluster --name fcg`).
 
+## Teste ponta a ponta
+
+[`e2e/e2e.sh`](e2e/e2e.sh) valida os 3 cenarios exigidos: cadastro (e-mail de boas-vindas), compra aprovada (jogo na biblioteca, pagamento Approved e e-mail de confirmacao) e compra rejeitada (jogo acima de R$ 300). Requer `curl` e `jq`.
+
+```bash
+docker compose up -d --build
+./e2e/e2e.sh
+```
+
+No Kubernetes local, faca port-forward das APIs (5101, 5102, 5103) e rode:
+
+```bash
+LOGS_CMD="kubectl logs -l app=notifications-api --tail=-1" ./e2e/e2e.sh
+```
+
+Para a demonstracao manual, use [`e2e/fcg.http`](e2e/fcg.http). O roteiro do video esta em [`docs/roteiro-video.md`](docs/roteiro-video.md) e o modelo do relatorio em [`docs/relatorio-entrega.md`](docs/relatorio-entrega.md).
+
 ## Imagens no GHCR
 
 Cada servico publica sua imagem em `ghcr.io/sampaiobrenner/fcg-<servico>` a cada push na `main` (tag `latest` e `sha-<commit>`) e a cada tag `v*` (tag semver). O build usa o workflow reutilizavel [`docker-publish.yml`](.github/workflows/docker-publish.yml) deste repositorio, chamado por `.github/workflows/docker.yml` em cada servico.

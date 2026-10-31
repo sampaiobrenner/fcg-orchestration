@@ -1,0 +1,80 @@
+### FCG Fase 2 - roteiro manual dos fluxos (REST Client do VS Code ou HTTP Client do Rider)
+### Execute na ordem. Com Kubernetes, faca port-forward para as mesmas portas.
+
+@users = http://localhost:5101
+@catalog = http://localhost:5102
+@payments = http://localhost:5103
+@email = video@fcg.dev
+@password = Senha@123
+
+### 1. Cadastro (gera UserCreatedEvent -> e-mail de boas-vindas no log da NotificationsAPI)
+POST {{users}}/api/v1/auth/register
+Content-Type: application/json
+
+{ "name": "Usuario do Video", "email": "{{email}}", "password": "{{password}}" }
+
+### 2. Login do usuario
+# @name login
+POST {{users}}/api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
+
+@token = {{login.response.body.accessToken}}
+
+### 3. Login do administrador (seed)
+# @name admin
+POST {{users}}/api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "admin@cloudgames.com", "password": "Admin@123" }
+
+@adminToken = {{admin.response.body.accessToken}}
+
+### 4. Catalogo (preco efetivo com promocao)
+# @name games
+GET {{catalog}}/api/v1/games
+
+@gameId = {{games.response.body.$[0].id}}
+
+### 5. Compra aprovada: pedido (202 Pending -> OrderPlacedEvent)
+# @name order
+POST {{catalog}}/api/v1/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "gameId": "{{gameId}}" }
+
+@orderId = {{order.response.body.orderId}}
+
+### 6. Situacao do pedido (Completed apos o PaymentProcessedEvent)
+GET {{catalog}}/api/v1/orders/{{orderId}}
+Authorization: Bearer {{token}}
+
+### 7. Pagamento na PaymentsAPI
+GET {{payments}}/api/v1/payments/{{orderId}}
+Authorization: Bearer {{token}}
+
+### 8. Biblioteca do usuario
+GET {{catalog}}/api/v1/library
+Authorization: Bearer {{token}}
+
+### 9. Compra rejeitada: administrador cadastra jogo acima do limite (R$ 300)
+# @name expensive
+POST {{catalog}}/api/v1/games
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "title": "Jogo Premium do Video", "description": "Acima do limite de aprovacao", "genre": "Acao", "price": 399.90, "releaseDate": null }
+
+### 10. Pedido do jogo caro
+# @name rejected
+POST {{catalog}}/api/v1/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "gameId": "{{expensive.response.body.id}}" }
+
+### 11. Pedido Rejected com motivo
+GET {{catalog}}/api/v1/orders/{{rejected.response.body.orderId}}
+Authorization: Bearer {{token}}
